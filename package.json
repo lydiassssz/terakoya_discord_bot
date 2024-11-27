@@ -1,6 +1,11 @@
 {
   "dependencies": {
+    "@types/knex": "^0.15.2",
+    "@types/pg": "^8.11.10",
     "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "knex": "^3.1.0",
+    "pg": "^8.13.1",
+    "tunnel-ssh": "^5.1.2"
   }
 }
