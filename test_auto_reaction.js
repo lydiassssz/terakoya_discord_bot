@@ -16,54 +16,61 @@ client.once("ready", () => {
   console.log("Bot start!");
 });
 
+// 対象のチャンネルIDを指定
+const announcementChannelIds = ["1309759525603115138", "1311212421913776189"];
+
 // メッセージが送信されたときの処理
 client.on("messageCreate", async (message) => {
-  const announcementChannelId = "1309759525603115138"; // チャンネルIDを指定
-
   // Botのメッセージにはリアクションしない
   if (message.author.bot) return;
 
-  // 指定したIDのチャンネルメッセージにリアクションを追加する
-  if (message.channel.id === announcementChannelId) {
+  // 対象のチャンネルでメッセージが送信された場合
+  if (announcementChannelIds.includes(message.channel.id)) {
     try {
       await message.react("🎉");
     } catch (error) {
-      console.error("エラー", error);
+      console.error("リアクション追加エラー:", error);
     }
   }
 });
 
 // リアクションが追加されたときの処理
 client.on("messageReactionAdd", async (reaction, user) => {
-  const announcementChannelId = "1309759525603115138";
+  if (user.bot) return; // Botのリアクションを無視
 
-  if (user.bot) return;
+  const channelId = reaction.message.channel.id;
+  if (announcementChannelIds.includes(channelId)) {
+    try {
+      const emojiName = reaction.emoji.name;
+      const channel = reaction.message.channel;
 
-  if (reaction.message.channel.id === announcementChannelId) {
-    const emojiName = reaction.emoji.name;
-
-    // リアクションが追加されたことを指定のチャンネルに呟く
-    const channel = reaction.message.channel;
-    await channel.send(
-      `「${user.username}」がリアクション「${emojiName}」をつけました！`
-    );
+      // リアクションが追加されたことを呟く
+      await channel.send(
+        `「${user.username}」がリアクション「${emojiName}」をつけました！`
+      );
+    } catch (error) {
+      console.error("リアクション追加処理エラー:", error);
+    }
   }
 });
 
-// リアクションがなくなったときの処理
+// リアクションが削除されたときの処理
 client.on("messageReactionRemove", async (reaction, user) => {
-  const announcementChannelId = "1309759525603115138";
+  if (user.bot) return; // Botのリアクションを無視
 
-  if (user.bot) return;
+  const channelId = reaction.message.channel.id;
+  if (announcementChannelIds.includes(channelId)) {
+    try {
+      const emojiName = reaction.emoji.name;
+      const channel = reaction.message.channel;
 
-  if (reaction.message.channel.id === announcementChannelId) {
-    const emojiName = reaction.emoji.name;
-
-    // リアクションが削除されたことを指定のチャンネルに呟く
-    const channel = reaction.message.channel;
-    await channel.send(
-      `「${user.username}」がリアクション「${emojiName}」を外しました！`
-    );
+      // リアクションが削除されたことを呟く
+      await channel.send(
+        `「${user.username}」がリアクション「${emojiName}」を外しました！`
+      );
+    } catch (error) {
+      console.error("リアクション削除処理エラー:", error);
+    }
   }
 });
 
