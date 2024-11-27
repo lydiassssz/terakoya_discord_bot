@@ -9,6 +9,9 @@ const client = new Client({
   user: process.env.DB_USER, // 作成したユーザー名
   password: process.env.DB_PASSWORD, // 作成したパスワード
   database: process.env.DB_NAME, // 作成したデータベース名
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // 接続処理
