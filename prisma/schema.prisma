@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // .envでDATABASE_URLを設定
+}
+
+model MonitoredChannel {
+  id          Int    @id @default(autoincrement()) // 自動インクリメントの主キー
+  channelId   String @unique // チャンネルIDはユニークに
+  channelName String? // チャンネル名はNULL許容
+  createdAt   DateTime @default(now()) // 作成日時
+  updatedAt   DateTime @updatedAt // 更新日時
+  deletedAt   DateTime? // 論理削除フィールド
+}
+
+model DiscordUser {
+  id       Int    @id @default(autoincrement()) // 自動インクリメントの主キー
+  userId   String @unique // ユーザーIDはユニークに
+  userName String? // ユーザー名はNULL許容
+  createdAt   DateTime @default(now()) // 作成日時
+  updatedAt   DateTime @updatedAt // 更新日時
+  deletedAt   DateTime? // 論理削除フィールド
+
+  posts     Post[]      // 投稿リレーション
+  reactions Reaction[]  // リアクションリレーション
+}
+
+model Post {
+  id        Int    @id @default(autoincrement()) // 自動インクリメントの主キー
+  userId    Int    // 外部キー（DiscordUserのID）
+  messageId String @unique // メッセージIDはユニークに
+  content   String? // 投稿内容はNULL許容
+  createdAt   DateTime @default(now()) // 作成日時
+  updatedAt   DateTime @updatedAt // 更新日時
+  deletedAt   DateTime? // 論理削除フィールド
+
+  author    DiscordUser @relation(fields: [userId], references: [id]) // リレーション設定
+  reactions Reaction[]  // リアクションリレーション
+}
+
+model Reaction {
+  id          Int    @id @default(autoincrement()) // 自動インクリメントの主キー
+  userId      Int    // 外部キー（DiscordUserのID）
+  messageId   Int    // 外部キー（PostのID）
+  reaction    String // リアクション内容
+  createdAt   DateTime @default(now()) // 作成日時
+  updatedAt   DateTime @updatedAt // 更新日時
+  deletedAt   DateTime? // 論理削除フィールド
+
+  user        DiscordUser @relation(fields: [userId], references: [id]) // DiscordUserリレーション
+  post        Post        @relation(fields: [messageId], references: [id]) // Postリレーション
+}
