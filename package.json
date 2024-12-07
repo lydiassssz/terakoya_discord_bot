@@ -7,5 +7,8 @@
     "knex": "^3.1.0",
     "pg": "^8.13.1",
     "tunnel-ssh": "^5.1.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.0.1"
   }
 }
