@@ -9,7 +9,7 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessageReactions,
   ],
-  partials: ["MESSAGE", "REACTION"], // 未キャッシュのメッセージも処理可能にする
+  partials: ["USER", "MESSAGE", "REACTION"], // 未キャッシュのメッセージも処理可能にする
 });
 
 client.once("ready", () => {
@@ -71,6 +71,28 @@ client.on("messageReactionRemove", async (reaction, user) => {
     } catch (error) {
       console.error("リアクション削除処理エラー:", error);
     }
+  }
+});
+
+client.on("messageDelete", async (message) => {
+  //if (!message.guild) return; // サーバーでない場合は無視
+
+  try {
+    // 監査ログからメッセージ削除イベントを取得
+    const logs = await message.guild.fetchAuditLogs({ type: 72 }); // MESSAGE_DELETE の数値
+    const logEntry = logs.entries.find((entry) => {
+      const targetId = entry.target?.id;
+      if (!targetId || targetId !== message.id) return false;
+      const channelId = entry.target?.channelId ?? entry.target?.channel_id;
+      return channelId && channelId === message.channel.id;
+    });
+
+    const executor = logEntry?.executor ?? message.author; // 削除したユーザー
+    message.channel.send(
+      `${executor.tag} が ${message.author.tag} のメッセージを削除しました。`
+    );
+  } catch (error) {
+    console.error("監査ログ取得中にエラーが発生しました:", error);
   }
 });
 
